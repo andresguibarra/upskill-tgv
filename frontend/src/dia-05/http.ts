@@ -15,6 +15,7 @@ export async function http<T>(url: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
   if (!res.ok) throw new ApiError(res.status, `${res.status} ${res.statusText}`)
+  if (res.status === 204) return undefined as T // típico de un DELETE: no hay body para parsear
   return (await res.json()) as T
 }
 
