@@ -1,0 +1,25 @@
+name: mfe
+
+on:
+  pull_request:
+    paths: ['mfe/**', '.github/workflows/mfe.yml']
+  push:
+    branches: [main]
+    paths: ['mfe/**']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [remote, host]
+    defaults:
+      run:
+        working-directory: mfe/${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
