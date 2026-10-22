@@ -10,3 +10,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 6: módulo CRUD tipado](dia-06.md), el entregable del bloque 2
 - [Días 7 y 8: testing frontend con Vitest y Vue Test Utils](dia-07-08.md)
 - [Día 9: suite de tests del módulo CRUD](dia-09.md), el entregable del bloque 3
+- [Día 10: arquitectura y microfrontends](dia-10.md)
