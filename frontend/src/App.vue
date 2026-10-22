@@ -3,8 +3,12 @@ import { ref } from 'vue'
 import OptionsCounter from './dia-01/OptionsCounter.vue'
 import SetupCounter from './dia-01/SetupCounter.vue'
 import SearchBox from './dia-01/SearchBox.vue'
+import TodoCrud from './dia-06/TodoCrud.vue'
+import { createMemoryRepository } from './dia-06/repositories'
+import type { Todo } from './dia-06/types'
 
 const search = ref('')
+const todoRepo = createMemoryRepository<Todo>([{ id: 1, title: 'Repasar el bloque 2', done: false }])
 </script>
 
 <template>
@@ -17,6 +21,11 @@ const search = ref('')
       <p>Options API: <OptionsCounter :start="1" /></p>
       <p>Composition API: <SetupCounter :start="1" /></p>
       <p><SearchBox v-model="search" /> {{ search }}</p>
+    </section>
+
+    <section>
+      <h2>Día 6: CRUD tipado</h2>
+      <TodoCrud :repo="todoRepo" />
     </section>
   </main>
 </template>
