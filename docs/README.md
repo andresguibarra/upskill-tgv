@@ -12,3 +12,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 9: suite de tests del módulo CRUD](dia-09.md), el entregable del bloque 3
 - [Día 10: arquitectura y microfrontends](dia-10.md)
 - [Día 11: Module Federation en la práctica](dia-11.md)
+- [Día 12: memo técnico de microfrontends](bloque-4-memo-microfrontends.md), el entregable del bloque 4
