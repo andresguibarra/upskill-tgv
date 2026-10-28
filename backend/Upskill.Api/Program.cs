@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Upskill.Api.Data;
 using Upskill.Api.Demo;
 using Upskill.Api.Practica;
+using Upskill.Api.Todos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,12 @@ builder.Services.AddSingleton<ItemStore>();
 // EF Core: el DbContext es scoped (uno por request).
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseSqlite(builder.Configuration.GetConnectionString("App")));
+
+// CRUD de todos (entregable del bloque 5): servicio scoped, igual que el DbContext.
+builder.Services.AddScoped<TodoService>();
+
+// .NET 10: valida los DataAnnotations de los parámetros de los endpoints y devuelve 400 con ProblemDetails.
+builder.Services.AddValidation();
 
 // Errores como ProblemDetails (RFC 9457); los handlers propios corren antes que el de por defecto.
 builder.Services.AddProblemDetails();
@@ -72,6 +79,7 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/health");
 app.MapDemoEndpoints();
 app.MapNotesEndpoints();
+app.MapTodosEndpoints();
 
 app.Run();
 
