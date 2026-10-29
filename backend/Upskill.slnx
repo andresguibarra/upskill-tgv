@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Upskill.Api.Tests/Upskill.Api.Tests.csproj" />
   <Project Path="Upskill.Api/Upskill.Api.csproj" />
 </Solution>
