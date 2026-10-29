@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Upskill.Api.Todos;
 
 namespace Upskill.Api.Data;
 
@@ -13,6 +14,7 @@ public sealed class Note
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Note> Notes => Set<Note>();
+    public DbSet<Todo> Todos => Set<Todo>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -22,5 +24,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(n => n.Title).HasMaxLength(100);
             e.HasIndex(n => n.Title).IsUnique();
         });
+        model.Entity<Todo>(e => e.Property(t => t.Title).HasMaxLength(100));
     }
 }

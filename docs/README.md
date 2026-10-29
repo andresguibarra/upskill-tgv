@@ -15,3 +15,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 12: memo técnico de microfrontends](bloque-4-memo-microfrontends.md), el entregable del bloque 4
 - [Día 13: ASP.NET Core moderno (repaso)](dia-13.md)
 - [Día 14: ASP.NET Core en la práctica (EF Core, middleware, CORS, rate limiting)](dia-14.md)
+- [Día 15: API REST CRUD de todos](dia-15.md), el entregable del bloque 5
