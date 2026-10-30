@@ -19,3 +19,4 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet build -warnaserror
+      - run: dotnet test --no-build
