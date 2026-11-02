@@ -49,5 +49,5 @@ dotnet test --coverage --coverage-output-format cobertura \
 
 - [Code coverage con Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-extensions-code-coverage)
 - [Integration tests en ASP.NET Core](https://learn.microsoft.com/aspnet/core/test/integration-tests)
-- [Testing del rate limiting](https://learn.microsoft.com/aspnet/core/performance/rate-limit#testing-endpoints-with-rate-limiting)
+- [Rate limiting en ASP.NET Core](https://learn.microsoft.com/aspnet/core/performance/rate-limit)
 - [EF Core: elegir una estrategia de testing](https://learn.microsoft.com/ef/core/testing/choosing-a-testing-strategy)
