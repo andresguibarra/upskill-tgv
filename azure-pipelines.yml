@@ -1,0 +1,89 @@
+# CI en Azure Pipelines (día 19). Equivale a .github/workflows/backend.yml + frontend.yml.
+# No corre desde GitHub: hay que crear el pipeline en Azure DevOps apuntando a este archivo
+# (Pipelines > New pipeline > GitHub > este repo > Existing YAML file).
+
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+variables:
+  buildConfiguration: Release
+  dotnetVersion: 10.0.x
+  nodeVersion: 22.x
+
+jobs:
+  - job: backend
+    displayName: Backend .NET
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UseDotNet@2
+        displayName: Instalar .NET $(dotnetVersion)
+        inputs:
+          packageType: sdk
+          version: $(dotnetVersion)
+
+      - script: dotnet build --configuration $(buildConfiguration) -warnaserror
+        displayName: Build
+        workingDirectory: backend
+
+      - script: >
+          dotnet test --no-build --configuration $(buildConfiguration)
+          --report-trx --results-directory $(Agent.TempDirectory)/backend
+          --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+          --coverage-settings $(Build.SourcesDirectory)/backend/Upskill.Api.Tests/coverage.config
+        displayName: Tests con cobertura
+        workingDirectory: backend
+
+      # succeededOrFailed(): publica los resultados aunque haya tests rojos.
+      - task: PublishTestResults@2
+        displayName: Publicar resultados de tests
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: VSTest
+          testResultsFiles: $(Agent.TempDirectory)/backend/**/*.trx
+          testRunTitle: Backend
+
+      - task: PublishCodeCoverageResults@2
+        displayName: Publicar cobertura
+        inputs:
+          summaryFileLocation: $(Agent.TempDirectory)/backend/coverage.cobertura.xml
+
+  - job: frontend
+    displayName: Frontend Vue
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: NodeTool@0
+        displayName: Instalar Node $(nodeVersion)
+        inputs:
+          versionSpec: $(nodeVersion)
+
+      - task: Cache@2
+        displayName: Cache de npm
+        inputs:
+          key: 'npm | "$(Agent.OS)" | frontend/package-lock.json'
+          path: $(Pipeline.Workspace)/.npm
+
+      - script: npm ci --cache $(Pipeline.Workspace)/.npm
+        displayName: npm ci
+        workingDirectory: frontend
+
+      - script: |
+          npm run type-check
+          npx vitest run --reporter=default --reporter=junit --outputFile.junit=test-results/junit.xml
+          npm run build-only
+        displayName: Type-check, tests y build
+        workingDirectory: frontend
+
+      - task: PublishTestResults@2
+        displayName: Publicar resultados de tests
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: frontend/test-results/junit.xml
+          testRunTitle: Frontend
