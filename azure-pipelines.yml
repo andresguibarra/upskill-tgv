@@ -1,4 +1,4 @@
-# CI multi-stage en Azure Pipelines (días 19 y 20).
+# CI/CD multi-stage en Azure Pipelines (días 19 a 21): build y tests, smoke test y deploy a dev y prod.
 # No corre desde GitHub: hay que crear el pipeline en Azure DevOps apuntando a este archivo
 # (Pipelines > New pipeline > GitHub > este repo > Existing Azure Pipelines YAML file).
 
@@ -20,6 +20,10 @@ pr:
 variables:
   buildConfiguration: Release
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages   # la usa dotnet restore y la cache
+  # Hay que crearlos en Azure antes del primer deploy (ver docs/bloque-7-pipeline.md).
+  azureServiceConnection: upskill-azure
+  webAppDev: upskill-tgv-api-dev
+  webAppProd: upskill-tgv-api
 
 stages:
   - stage: Build
@@ -88,3 +92,26 @@ stages:
               for i in $(seq 1 30); do curl -sf http://localhost:5000/health && exit 0; sleep 1; done
               echo "La API no respondió /health" && exit 1
             displayName: GET /health
+
+  # Deploy solo desde main (no en PRs). Los stages leen los nombres en compilación, por eso ${{ variables.x }}.
+  - stage: DeployDev
+    displayName: Deploy a dev
+    dependsOn: Smoke
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - template: pipelines/templates/deploy-webapp.yml
+        parameters:
+          environment: upskill-dev
+          serviceConnection: ${{ variables.azureServiceConnection }}
+          webAppName: ${{ variables.webAppDev }}
+
+  # La aprobación manual no va en el YAML: se configura en el environment upskill-prod (Approvals and checks).
+  - stage: DeployProd
+    displayName: Deploy a prod
+    dependsOn: DeployDev
+    jobs:
+      - template: pipelines/templates/deploy-webapp.yml
+        parameters:
+          environment: upskill-prod
+          serviceConnection: ${{ variables.azureServiceConnection }}
+          webAppName: ${{ variables.webAppProd }}

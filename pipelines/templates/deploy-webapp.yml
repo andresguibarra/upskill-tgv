@@ -1,0 +1,43 @@
+# Job template: deploy del artefacto api a un Azure App Service (Linux) y chequeo de /health.
+# El deployment job registra el deploy en el environment (historial, approvals y checks).
+parameters:
+  - name: environment              # environment de Azure DevOps (se crea solo en el primer run)
+    type: string
+  - name: serviceConnection        # service connection de Azure Resource Manager
+    type: string
+  - name: webAppName
+    type: string
+
+jobs:
+  - deployment: api
+    displayName: API a ${{ parameters.webAppName }}
+    pool:
+      vmImage: ubuntu-latest
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # En el hook deploy, los artefactos del run se descargan solos en $(Pipeline.Workspace).
+            - task: AzureWebApp@1
+              displayName: Deploy de la API
+              inputs:
+                azureSubscription: ${{ parameters.serviceConnection }}
+                appType: webAppLinux
+                appName: ${{ parameters.webAppName }}
+                package: $(Pipeline.Workspace)/api      # carpeta o zip; el stack (.NET 10) se fija al crear la app
+                appSettings: >-
+                  -Database__MigrateOnStartup true
+                  -ConnectionStrings__App "Data Source=/home/upskill.db"
+
+            - script: |
+                url="https://${{ parameters.webAppName }}.azurewebsites.net/health"
+                for i in $(seq 1 20); do curl -sf "$url" && exit 0; sleep 6; done
+                echo "##vso[task.logissue type=error]$url no respondió Healthy" && exit 1
+              displayName: GET /health en ${{ parameters.environment }}
+
+        on:
+          failure:
+            steps:
+              - script: echo "Falló el deploy a ${{ parameters.environment }}. Para volver atrás, re-correr el deploy de un run anterior."
+                displayName: Aviso de rollback
