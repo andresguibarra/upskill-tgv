@@ -18,3 +18,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 15: API REST CRUD de todos](dia-15.md), el entregable del bloque 5
 - [Día 16: testing backend con xUnit (repaso)](dia-16.md)
 - [Día 17: tests de integración con WebApplicationFactory](dia-17.md)
+- [Día 22: GitHub Copilot (repaso), con instrucciones, prompt file y agente del repo](dia-22.md)
