@@ -87,7 +87,7 @@ Aparecen como formulario en "Run pipeline". En un trigger automático se usa el 
   artifact: api                                      # queda en $(Pipeline.Workspace)/api
 ```
 
-Se compila una vez y lo que se testea es lo mismo que se deploya. El stage de deploy de mañana descarga este mismo artefacto.
+Se compila una vez y lo que se testea es lo mismo que se deploya. El [stage de deploy](bloque-7-pipeline.md) descarga este mismo artefacto.
 
 ## Cache
 
@@ -104,7 +104,7 @@ La key se arma con strings y hashes de archivos: si cambia algún `.csproj`, cam
 
 ## Lo que encontró el smoke test
 
-Publicada y corriendo en Production, la API respondía **503 Unhealthy** en `/health`: las migraciones solo se aplicaban en Development, así que la base no existía. Ahora se controlan con `Database:MigrateOnStartup` (en `true` en `appsettings.json`). Con SQLite y una instancia alcanza. Con varias instancias o una base compartida conviene apagarlo y migrar desde el pipeline con un migration bundle, que queda para el día 21.
+Publicada y corriendo en Production, la API respondía **503 Unhealthy** en `/health`: las migraciones solo se aplicaban en Development, así que la base no existía. Ahora se controlan con `Database:MigrateOnStartup` (en `true` en `appsettings.json`). Con SQLite y una instancia alcanza. Con varias instancias o una base compartida conviene apagarlo y migrar desde el pipeline con un migration bundle, que se muestra en el [entregable del bloque 7](bloque-7-pipeline.md#migraciones-en-el-deploy).
 
 ## Validación
 

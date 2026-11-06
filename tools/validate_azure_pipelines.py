@@ -42,6 +42,7 @@ def normalize(node):
     """Lleva el documento a lo que ve el schema.
 
     - Azure lee todos los escalares de YAML como strings (`default: true` es "true").
+      PyYAML lee la clave `on:` (hooks de deployment) como True: se vuelve a "on".
     - Las inserciones `${{ if }}:` / `${{ else }}:` se expanden con todas sus ramas,
       así se valida el contenido de cada una (el schema no conoce las expresiones).
     """
@@ -60,7 +61,7 @@ def normalize(node):
             if is_expression(key) and isinstance(value, dict):
                 out.update(normalize(value))
             else:
-                out[key] = normalize(value)
+                out["on" if key is True else key] = normalize(value)
         return out
     if isinstance(node, bool):
         return "true" if node else "false"
