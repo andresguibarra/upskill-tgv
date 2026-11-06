@@ -20,3 +20,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 17: tests de integración con WebApplicationFactory](dia-17.md)
 - [Día 18: suite de tests del backend](bloque-6-suite-tests.md), el entregable del bloque 6
 - [Día 19: Azure Pipelines (repaso)](dia-19.md)
+- [Día 20: Azure Pipelines en la práctica (stages, templates, artefactos)](dia-20.md)

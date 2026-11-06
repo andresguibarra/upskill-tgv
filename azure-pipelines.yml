@@ -1,6 +1,13 @@
-# CI en Azure Pipelines (día 19). Equivale a .github/workflows/backend.yml + frontend.yml.
+# CI multi-stage en Azure Pipelines (días 19 y 20).
 # No corre desde GitHub: hay que crear el pipeline en Azure DevOps apuntando a este archivo
-# (Pipelines > New pipeline > GitHub > este repo > Existing YAML file).
+# (Pipelines > New pipeline > GitHub > este repo > Existing Azure Pipelines YAML file).
+
+# Parámetro de runtime: aparece como checkbox en "Run pipeline".
+parameters:
+  - name: runFrontend
+    displayName: Incluir el frontend
+    type: boolean
+    default: true
 
 trigger:
   branches:
@@ -12,78 +19,72 @@ pr:
 
 variables:
   buildConfiguration: Release
-  dotnetVersion: 10.0.x
-  nodeVersion: 22.x
+  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages   # la usa dotnet restore y la cache
 
-jobs:
-  - job: backend
-    displayName: Backend .NET
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: UseDotNet@2
-        displayName: Instalar .NET $(dotnetVersion)
-        inputs:
-          packageType: sdk
-          version: $(dotnetVersion)
+stages:
+  - stage: Build
+    displayName: Build y tests
+    jobs:
+      - job: backend
+        displayName: Backend .NET
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: pipelines/templates/dotnet-build-test.yml
+            parameters:
+              workingDirectory: backend
+              buildConfiguration: $(buildConfiguration)
+              coverageSettings: backend/Upskill.Api.Tests/coverage.config
 
-      - script: dotnet build --configuration $(buildConfiguration) -warnaserror
-        displayName: Build
-        workingDirectory: backend
+          - script: >
+              dotnet publish Upskill.Api --no-build --configuration $(buildConfiguration)
+              --output $(Build.ArtifactStagingDirectory)/api
+            displayName: dotnet publish
+            workingDirectory: backend
 
-      - script: >
-          dotnet test --no-build --configuration $(buildConfiguration)
-          --report-trx --results-directory $(Agent.TempDirectory)/backend
-          --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
-          --coverage-settings $(Build.SourcesDirectory)/backend/Upskill.Api.Tests/coverage.config
-        displayName: Tests con cobertura
-        workingDirectory: backend
+          # Artefacto: lo que el stage siguiente (y el deploy) descarga, sin recompilar.
+          - publish: $(Build.ArtifactStagingDirectory)/api
+            artifact: api
+            displayName: Publicar artefacto api
 
-      # succeededOrFailed(): publica los resultados aunque haya tests rojos.
-      - task: PublishTestResults@2
-        displayName: Publicar resultados de tests
-        condition: succeededOrFailed()
-        inputs:
-          testResultsFormat: VSTest
-          testResultsFiles: $(Agent.TempDirectory)/backend/**/*.trx
-          testRunTitle: Backend
+      # Inserción condicional al compilar el YAML, según el parámetro de runtime.
+      - ${{ if eq(parameters.runFrontend, true) }}:
+        - job: frontend
+          displayName: Frontend Vue
+          pool:
+            vmImage: ubuntu-latest
+          steps:
+            - template: pipelines/templates/node-build-test.yml
+              parameters:
+                workingDirectory: frontend
 
-      - task: PublishCodeCoverageResults@2
-        displayName: Publicar cobertura
-        inputs:
-          summaryFileLocation: $(Agent.TempDirectory)/backend/coverage.cobertura.xml
+            - publish: frontend/dist
+              artifact: web
+              displayName: Publicar artefacto web
 
-  - job: frontend
-    displayName: Frontend Vue
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: NodeTool@0
-        displayName: Instalar Node $(nodeVersion)
-        inputs:
-          versionSpec: $(nodeVersion)
+  - stage: Smoke
+    displayName: Smoke test del artefacto
+    dependsOn: Build
+    jobs:
+      - job: api
+        displayName: Levantar la API publicada
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: none            # solo usa el artefacto, no el código
+          - download: current
+            artifact: api
+            displayName: Descargar artefacto api
 
-      - task: Cache@2
-        displayName: Cache de npm
-        inputs:
-          key: 'npm | "$(Agent.OS)" | frontend/package-lock.json'
-          path: $(Pipeline.Workspace)/.npm
+          - task: UseDotNet@2
+            displayName: Runtime de ASP.NET Core 10
+            inputs:
+              packageType: runtime
+              version: 10.0.x
 
-      - script: npm ci --cache $(Pipeline.Workspace)/.npm
-        displayName: npm ci
-        workingDirectory: frontend
-
-      - script: |
-          npm run type-check
-          npx vitest run --reporter=default --reporter=junit --outputFile.junit=test-results/junit.xml
-          npm run build-only
-        displayName: Type-check, tests y build
-        workingDirectory: frontend
-
-      - task: PublishTestResults@2
-        displayName: Publicar resultados de tests
-        condition: succeededOrFailed()
-        inputs:
-          testResultsFormat: JUnit
-          testResultsFiles: frontend/test-results/junit.xml
-          testRunTitle: Frontend
+          - script: |
+              cd "$(Pipeline.Workspace)/api"
+              dotnet Upskill.Api.dll --urls http://localhost:5000 &
+              for i in $(seq 1 30); do curl -sf http://localhost:5000/health && exit 0; sleep 1; done
+              echo "La API no respondió /health" && exit 1
+            displayName: GET /health
