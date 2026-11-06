@@ -18,4 +18,8 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 15: API REST CRUD de todos](dia-15.md), el entregable del bloque 5
 - [Día 16: testing backend con xUnit (repaso)](dia-16.md)
 - [Día 17: tests de integración con WebApplicationFactory](dia-17.md)
+- [Día 18: suite de tests del backend](bloque-6-suite-tests.md), el entregable del bloque 6
+- [Día 19: Azure Pipelines (repaso)](dia-19.md)
+- [Día 20: Azure Pipelines en la práctica (stages, templates, artefactos)](dia-20.md)
+- [Día 21: pipeline CI/CD con deploy a dev y prod](bloque-7-pipeline.md), el entregable del bloque 7
 - [Día 22: GitHub Copilot (repaso), con instrucciones, prompt file y agente del repo](dia-22.md)

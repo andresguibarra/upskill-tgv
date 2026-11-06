@@ -19,4 +19,19 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet build -warnaserror
-      - run: dotnet test --no-build
+      - name: Tests con cobertura
+        run: >
+          dotnet test --no-build
+          --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+          --coverage-settings "$PWD/Upskill.Api.Tests/coverage.config"
+      - name: Resumen de cobertura
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob, xml.etree.ElementTree as ET
+          r = ET.parse(glob.glob('**/TestResults/coverage.cobertura.xml', recursive=True)[0]).getroot()
+          print(f"### Cobertura backend: {float(r.get('line-rate')):.1%} de líneas, {float(r.get('branch-rate')):.1%} de ramas")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-backend
+          path: backend/**/TestResults/coverage.cobertura.xml

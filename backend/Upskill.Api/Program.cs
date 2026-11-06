@@ -70,8 +70,12 @@ app.UseRateLimiter();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();        // GET /openapi/v1.json
+}
 
-    // Aplica las migraciones pendientes al arrancar (solo en dev; en prod va en el pipeline).
+// Migraciones al arrancar: sirve para SQLite con una sola instancia. Con varias instancias o una base
+// compartida conviene apagarlo y migrar desde el pipeline (migration bundle, día 21).
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
     using var scope = app.Services.CreateScope();
     scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 }

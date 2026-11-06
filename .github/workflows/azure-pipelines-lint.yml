@@ -1,0 +1,17 @@
+name: azure-pipelines-lint
+
+# Azure Pipelines no corre desde GitHub, pero el YAML se puede validar contra el schema oficial.
+on:
+  pull_request:
+    paths: ['azure-pipelines.yml', 'pipelines/**', 'tools/validate_azure_pipelines.py', '.github/workflows/azure-pipelines-lint.yml']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml jsonschema
+      - run: python tools/validate_azure_pipelines.py
