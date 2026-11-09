@@ -23,3 +23,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 20: Azure Pipelines en la práctica (stages, templates, artefactos)](dia-20.md)
 - [Día 21: pipeline CI/CD con deploy a dev y prod](bloque-7-pipeline.md), el entregable del bloque 7
 - [Día 22: GitHub Copilot (repaso), con instrucciones, prompt file y agente del repo](dia-22.md)
+- [Día 23: GitHub Copilot en la práctica (búsqueda ?q= de punta a punta)](dia-23.md)

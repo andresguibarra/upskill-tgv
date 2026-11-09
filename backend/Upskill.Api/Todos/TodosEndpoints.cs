@@ -8,8 +8,8 @@ public static class TodosEndpoints
     {
         var todos = app.MapGroup("/api/todos").WithTags("Todos");
 
-        todos.MapGet("/", async (bool? done, TodoService svc, CancellationToken ct) =>
-            TypedResults.Ok(await svc.ListAsync(done, ct)));
+        todos.MapGet("/", async (bool? done, string? q, TodoService svc, CancellationToken ct) =>
+            TypedResults.Ok(await svc.ListAsync(done, q, ct)));
 
         todos.MapGet("/{id:int}", async Task<Results<Ok<TodoDto>, NotFound>> (int id, TodoService svc, CancellationToken ct) =>
             await svc.FindAsync(id, ct) is { } todo ? TypedResults.Ok(todo) : TypedResults.NotFound())
