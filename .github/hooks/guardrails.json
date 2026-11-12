@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      { "type": "command", "bash": "node .github/hooks/guard.cjs", "powershell": "node .github/hooks/guard.cjs", "timeoutSec": 10 }
+    ],
+    "agentStop": [
+      { "type": "command", "bash": "node .github/hooks/verify-on-stop.cjs", "timeoutSec": 600 }
+    ]
+  }
+}
