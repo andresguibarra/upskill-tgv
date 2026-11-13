@@ -13,6 +13,13 @@ public sealed class TodoService(AppDbContext db, TimeProvider time)
             .Select(t => new TodoDto(t.Id, t.Title, t.Done))
             .ToListAsync(ct);
 
+    public async Task<TodoStats> StatsAsync(CancellationToken ct)
+    {
+        var total = await db.Todos.CountAsync(ct);
+        var done = await db.Todos.CountAsync(t => t.Done, ct);
+        return new TodoStats(total, done, total - done);
+    }
+
     public Task<TodoDto?> FindAsync(int id, CancellationToken ct) =>
         db.Todos.AsNoTracking()
             .Where(t => t.Id == id)
