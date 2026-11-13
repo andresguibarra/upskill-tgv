@@ -13,6 +13,14 @@ public sealed class TodoService(AppDbContext db, TimeProvider time)
             .Select(t => new TodoDto(t.Id, t.Title, t.Done))
             .ToListAsync(ct);
 
+    // Una sola consulta: GROUP BY constante con COUNT condicional. Sin filas no hay grupo, de ahí el ?? ceros.
+    public async Task<TodoStats> StatsAsync(CancellationToken ct) =>
+        await db.Todos
+            .GroupBy(_ => 1)
+            .Select(g => new TodoStats(g.Count(), g.Count(t => t.Done), g.Count(t => !t.Done)))
+            .FirstOrDefaultAsync(ct)
+        ?? new TodoStats(0, 0, 0);
+
     public Task<TodoDto?> FindAsync(int id, CancellationToken ct) =>
         db.Todos.AsNoTracking()
             .Where(t => t.Id == id)

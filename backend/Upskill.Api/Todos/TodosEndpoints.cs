@@ -11,6 +11,9 @@ public static class TodosEndpoints
         todos.MapGet("/", async (bool? done, TodoService svc, CancellationToken ct) =>
             TypedResults.Ok(await svc.ListAsync(done, ct)));
 
+        // No choca con /{id:int}: la constraint int descarta "stats".
+        todos.MapGet("/stats", async (TodoService svc, CancellationToken ct) => TypedResults.Ok(await svc.StatsAsync(ct)));
+
         todos.MapGet("/{id:int}", async Task<Results<Ok<TodoDto>, NotFound>> (int id, TodoService svc, CancellationToken ct) =>
             await svc.FindAsync(id, ct) is { } todo ? TypedResults.Ok(todo) : TypedResults.NotFound())
             .WithName("GetTodo");

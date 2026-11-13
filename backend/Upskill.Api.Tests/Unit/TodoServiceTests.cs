@@ -73,4 +73,21 @@ public sealed class TodoServiceTests : IDisposable
         Assert.False(await Service().DeleteAsync(created.Id, _ct));
         Assert.Null(await Service().FindAsync(created.Id, _ct));
     }
+
+    [Fact]
+    public async Task Stats_cuenta_total_hechas_y_pendientes()
+    {
+        var svc = Service();
+        await svc.CreateAsync(new CreateTodo("a"), _ct);
+        await svc.CreateAsync(new CreateTodo("b", Done: true), _ct);
+        await svc.CreateAsync(new CreateTodo("c"), _ct);
+
+        Assert.Equal(new TodoStats(Total: 3, Done: 1, Pending: 2), await Service().StatsAsync(_ct));
+    }
+
+    [Fact]
+    public async Task Stats_sin_todos_devuelve_ceros()
+    {
+        Assert.Equal(new TodoStats(0, 0, 0), await Service().StatsAsync(_ct));
+    }
 }

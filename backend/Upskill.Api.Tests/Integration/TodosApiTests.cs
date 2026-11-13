@@ -60,6 +60,18 @@ public sealed class TodosApiTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task Get_stats_refleja_los_cambios()
+    {
+        var todo = await Create("pendiente");
+        await Create("hecha", done: true);
+        await _client.PatchAsJsonAsync($"/api/todos/{todo.Id}", new { done = true }, _ct);
+
+        var stats = await _client.GetFromJsonAsync<TodoStats>("/api/todos/stats", _ct);
+
+        Assert.Equal(new TodoStats(Total: 2, Done: 2, Pending: 0), stats);
+    }
+
+    [Fact]
     public async Task Patch_actualiza_y_un_id_inexistente_da_404()
     {
         var todo = await Create("Original");
