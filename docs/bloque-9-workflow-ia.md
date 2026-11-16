@@ -12,7 +12,7 @@ Entregable del bloque: el workflow que uso para una feature con agente, y un cas
 | 4 | Verde | paso 3 + `copilot-instructions.md` | agente | verde sin tocar tests |
 | 5 | Refactor | paso 4 | agente o vos | mismos tests + evidencia (SQL) |
 | 6 | Revisión | agente `Reviewer` (solo lectura) | vos | nada accionable o fixes con test |
-| 7 | Verificación | `scripts/check.sh` y hook `verify-on-stop` ([PR #26](https://github.com/andresguibarra/upskill-tgv/pull/26)) | hook | `block` si algo falla |
+| 7 | Verificación | `scripts/check.sh` y hook `verify-on-stop` (día 25) | hook | `block` si algo falla |
 | 8 | PR | Antes/Después + qué mirar | vos | CI verde |
 
 Tres reglas sostienen todo:
@@ -78,7 +78,7 @@ Saltear el refactor también es una decisión válida, siempre que esté respald
 - Errores: no hay camino que devuelva algo distinto de ProblemDetails.
 - Lo que no se verificó: `ExecuteDelete` saltea el change tracker. Hoy no importa (un contexto por request), pero conviene saberlo si algún día se agregan interceptores de `SaveChanges`.
 
-**7. Verificación.** `dotnet build -warnaserror` sin warnings, 39 tests de backend y vitest del frontend en verde. Con el PR #26 mergeado, esto lo corre el hook al cerrar el turno del agente.
+**7. Verificación.** `dotnet build -warnaserror` sin warnings, 39 tests de backend (48 después de mergear main con los días 23 a 26) y vitest del frontend en verde. Esto mismo lo corre el hook `verify-on-stop` al cerrar el turno del agente.
 
 **8. PR.** Este mismo, con los commits rojo y verde visibles en el historial.
 
