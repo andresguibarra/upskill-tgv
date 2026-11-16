@@ -39,10 +39,29 @@ public sealed class TodoServiceTests : IDisposable
         await svc.CreateAsync(new CreateTodo("b", Done: true), _ct);
         await svc.CreateAsync(new CreateTodo("c"), _ct);
 
-        var list = await Service().ListAsync(done, _ct);
+        var list = await Service().ListAsync(done, q: null, _ct);
 
         Assert.Equal(expected, list.Count);
         Assert.All(list, t => Assert.True(done is null || t.Done == done));
+    }
+
+    [Theory]
+    [InlineData("pipeline", 2)]          // no distingue mayúsculas
+    [InlineData("  azure  ", 1)]         // recorta espacios
+    [InlineData("100%", 1)]              // % es literal, no comodín
+    [InlineData("", 4)]                  // vacío = sin filtro
+    [InlineData("copilot", 0)]
+    public async Task List_busca_en_el_titulo(string q, int expected)
+    {
+        var svc = Service();
+        await svc.CreateAsync(new CreateTodo("Pipeline de Azure"), _ct);
+        await svc.CreateAsync(new CreateTodo("Smoke del PIPELINE"), _ct);
+        await svc.CreateAsync(new CreateTodo("Cobertura al 100%"), _ct);
+        await svc.CreateAsync(new CreateTodo("Cobertura al 1000"), _ct);
+
+        var list = await Service().ListAsync(done: null, q, _ct);
+
+        Assert.Equal(expected, list.Count);
     }
 
     [Fact]
