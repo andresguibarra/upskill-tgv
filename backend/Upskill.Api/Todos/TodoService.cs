@@ -6,12 +6,22 @@ namespace Upskill.Api.Todos;
 // La lógica vive acá y no en los endpoints: se testea sin HTTP (bloque 6).
 public sealed class TodoService(AppDbContext db, TimeProvider time)
 {
-    public Task<List<TodoDto>> ListAsync(bool? done, CancellationToken ct) =>
-        db.Todos.AsNoTracking()
-            .Where(t => done == null || t.Done == done)
+    public Task<List<TodoDto>> ListAsync(bool? done, string? q, CancellationToken ct)
+    {
+        var query = db.Todos.AsNoTracking().Where(t => done == null || t.Done == done);
+
+        // Búsqueda sin distinguir mayúsculas. En SQLite, lower() solo baja ASCII: "Ó" no matchea "ó".
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim().ToLowerInvariant();
+            query = query.Where(t => t.Title.ToLower().Contains(term));
+        }
+
+        return query
             .OrderBy(t => t.Id)
             .Select(t => new TodoDto(t.Id, t.Title, t.Done))
             .ToListAsync(ct);
+    }
 
     // Una sola consulta: GROUP BY constante con COUNT condicional. Sin filas no hay grupo, de ahí el ?? ceros.
     public async Task<TodoStats> StatsAsync(CancellationToken ct) =>

@@ -8,8 +8,8 @@ public static class TodosEndpoints
     {
         var todos = app.MapGroup("/api/todos").WithTags("Todos");
 
-        todos.MapGet("/", async (bool? done, TodoService svc, CancellationToken ct) =>
-            TypedResults.Ok(await svc.ListAsync(done, ct)));
+        todos.MapGet("/", async (bool? done, string? q, TodoService svc, CancellationToken ct) =>
+            TypedResults.Ok(await svc.ListAsync(done, q, ct)));
 
         // No choca con /{id:int}: la constraint int descarta "stats".
         todos.MapGet("/stats", async (TodoService svc, CancellationToken ct) => TypedResults.Ok(await svc.StatsAsync(ct)));
