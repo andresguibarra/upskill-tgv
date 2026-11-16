@@ -14,6 +14,8 @@ public sealed class Todo
 // Contrato con el frontend (frontend/src/dia-06/types.ts): Todo, Draft<Todo> y Patch<Todo>.
 public sealed record TodoDto(int Id, string Title, bool Done);
 
+public sealed record TodoStats(int Total, int Done, int Pending);
+
 public sealed record CreateTodo(
     [property: Required, StringLength(100, MinimumLength = 1)] string Title,
     bool Done = false);
