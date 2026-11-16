@@ -25,3 +25,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 22: GitHub Copilot (repaso), con instrucciones, prompt file y agente del repo](dia-22.md)
 - [Día 23: GitHub Copilot en la práctica (búsqueda ?q= de punta a punta)](dia-23.md)
 - [Día 24: informe de desarrollo con y sin IA](bloque-8-informe-copilot.md), el entregable del bloque 8
+- [Día 25: workflow asistido por IA (repaso), con script de verificación, hooks y skill](dia-25.md)
