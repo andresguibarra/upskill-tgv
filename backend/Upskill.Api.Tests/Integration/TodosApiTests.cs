@@ -60,6 +60,18 @@ public sealed class TodosApiTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task Get_combina_q_con_done()
+    {
+        await Create("Deploy a dev", done: true);
+        await Create("Deploy a prod");
+        await Create("Tests de integración", done: true);
+
+        var list = await _client.GetFromJsonAsync<List<TodoDto>>("/api/todos?q=DEPLOY&done=true", _ct);
+
+        Assert.Equal(["Deploy a dev"], list!.Select(t => t.Title));
+    }
+
+    [Fact]
     public async Task Patch_actualiza_y_un_id_inexistente_da_404()
     {
         var todo = await Create("Original");
