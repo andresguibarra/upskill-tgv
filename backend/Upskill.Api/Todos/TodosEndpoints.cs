@@ -25,6 +25,10 @@ public static class TodosEndpoints
         todos.MapPatch("/{id:int}", async Task<Results<Ok<TodoDto>, NotFound>> (int id, PatchTodo body, TodoService svc, CancellationToken ct) =>
             await svc.PatchAsync(id, body, ct) is { } todo ? TypedResults.Ok(todo) : TypedResults.NotFound());
 
+        // "completed" no choca con /{id:int}: la constraint int la descarta.
+        todos.MapDelete("/completed", async (TodoService svc, CancellationToken ct) =>
+            TypedResults.Ok(new DeleteDoneResult(await svc.DeleteDoneAsync(ct))));
+
         todos.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound>> (int id, TodoService svc, CancellationToken ct) =>
             await svc.DeleteAsync(id, ct) ? TypedResults.NoContent() : TypedResults.NotFound());
 

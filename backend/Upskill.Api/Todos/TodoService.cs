@@ -44,5 +44,9 @@ public sealed class TodoService(AppDbContext db, TimeProvider time)
     public async Task<bool> DeleteAsync(int id, CancellationToken ct) =>
         await db.Todos.Where(t => t.Id == id).ExecuteDeleteAsync(ct) == 1;
 
+    // Un solo DELETE ... WHERE Done en la base; no carga las entidades.
+    public Task<int> DeleteDoneAsync(CancellationToken ct) =>
+        db.Todos.Where(t => t.Done).ExecuteDeleteAsync(ct);
+
     private static TodoDto ToDto(Todo t) => new(t.Id, t.Title, t.Done);
 }
