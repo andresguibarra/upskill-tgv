@@ -79,4 +79,17 @@ public sealed class TodosApiTests : IAsyncDisposable
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/todos/{todo.Id}", _ct)).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.DeleteAsync($"/api/todos/{todo.Id}", _ct)).StatusCode);
     }
+
+    [Fact]
+    public async Task Delete_completed_devuelve_cuantas_borro_y_deja_las_pendientes()
+    {
+        await Create("hecha", done: true);
+        var pending = await Create("pendiente");
+
+        var res = await _client.DeleteAsync("/api/todos/completed", _ct);
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        Assert.Equal(new DeleteDoneResult(1), await res.Content.ReadFromJsonAsync<DeleteDoneResult>(_ct));
+        Assert.Equal([pending], await _client.GetFromJsonAsync<List<TodoDto>>("/api/todos", _ct));
+    }
 }
