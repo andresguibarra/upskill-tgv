@@ -27,3 +27,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 24: informe de desarrollo con y sin IA](bloque-8-informe-copilot.md), el entregable del bloque 8
 - [Día 25: workflow asistido por IA (repaso), con script de verificación, hooks y skill](dia-25.md)
 - [Día 26: workflow con IA en la práctica (TDD de /api/todos/stats)](dia-26.md)
+- [Día 29: proyecto integrador en la práctica, E2E con Playwright](dia-29.md)

@@ -1,0 +1,39 @@
+name: e2e
+
+on:
+  pull_request:
+    paths: ['frontend/**', 'backend/**', 'e2e/**', '.github/workflows/e2e.yml']
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm ci
+        working-directory: e2e
+      - run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      - run: dotnet build backend/Upskill.Api
+      - run: npx playwright test
+        working-directory: e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
