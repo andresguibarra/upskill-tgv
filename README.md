@@ -25,6 +25,7 @@ Navegador ──► Vite (frontend/, :5173) ──/api──► ASP.NET Core (ba
 | POST | `/api/todos` | alta. 201 con `Location`, o 400 con ProblemDetails |
 | PATCH | `/api/todos/{id}` | edición parcial (`null` = no tocar) |
 | DELETE | `/api/todos/{id}` | baja. 204, o 404 |
+| DELETE | `/api/todos/completed` | borra las hechas y devuelve `{ deleted }` |
 | GET | `/health`, `/openapi/v1.json` | health check y contrato OpenAPI (en Development) |
 
 `/api/notes` (con rate limiting y 409 por duplicado) y `/api/demo` quedan como práctica del bloque 5.
@@ -41,34 +42,37 @@ dotnet run --project backend/Upskill.Api --launch-profile http
 cd frontend && npm ci && VITE_TODOS_API=true npm run dev
 ```
 
-Sin `VITE_TODOS_API`, el frontend usa el repositorio en memoria y no necesita la API.
+Sin `VITE_TODOS_API`, el frontend usa el repositorio en memoria y no necesita la API. Con la API, también muestra el panel de stats.
 
 ## Calidad
 
 ```bash
 scripts/check.sh            # lo mismo que el CI, solo para las áreas que cambiaste
 scripts/check.sh all        # frontend + backend + pipeline + hooks
+scripts/smoke.sh            # levanta la API real y recorre el CRUD con curl
+cd e2e && npx playwright test   # E2E: navegador → Vite → API → SQLite
 ```
 
 | Capa | Dónde | Cuántos |
 | --- | --- | --- |
-| Frontend unit + componentes | `frontend/src/**/__tests__` (Vitest + Vue Test Utils) | 50 |
-| Backend unit | `backend/Upskill.Api.Tests/Unit` (xUnit v3, SQLite en memoria, `FakeTimeProvider`) | 13 métodos |
-| Backend integración | `backend/Upskill.Api.Tests/Integration` (`WebApplicationFactory`) | 20 métodos |
+| Frontend unit + componentes | `frontend/src/**/__tests__` (Vitest + Vue Test Utils) | 52 |
+| Backend unit | `backend/Upskill.Api.Tests/Unit` (xUnit v3, SQLite en memoria, `FakeTimeProvider`) | 15 métodos |
+| Backend integración | `backend/Upskill.Api.Tests/Integration` (`WebApplicationFactory`) | 21 métodos |
+| E2E | `e2e/` (Playwright, stack real) | 2 |
 
-Backend: 45 casos en total, contando los `Theory`. Detalle en [la suite de tests del bloque 6](docs/bloque-6-suite-tests.md).
+Backend: 48 casos en total, contando los `Theory`. Detalle en [la suite de tests del bloque 6](docs/bloque-6-suite-tests.md).
 
 ## CI/CD
 
-- **GitHub Actions** (`.github/workflows/`): frontend (type-check, tests, build), backend (build con `-warnaserror`, tests con cobertura en el resumen), validación del pipeline de Azure, hooks y microfrontends.
+- **GitHub Actions** (`.github/workflows/`): frontend (type-check, tests, build), backend (build con `-warnaserror`, tests con cobertura en el resumen), validación del pipeline de Azure, hooks, microfrontends y E2E con Playwright.
 - **Azure Pipelines** ([`azure-pipelines.yml`](azure-pipelines.yml)): Build → Smoke del artefacto publicado → DeployDev → DeployProd, con un template de deploy reutilizable. Está validado contra el schema, pero no corre desde GitHub porque necesita una organización de Azure DevOps y service connections. Ver [bloque 7](docs/bloque-7-pipeline.md).
 
 ## Desarrollo con IA
 
 - Instrucciones del repo para Copilot: `.github/copilot-instructions.md`, más `instructions/` por área con `applyTo`.
-- Agente `Reviewer` de solo lectura, prompt files (`/tests-endpoint`) y la skill `verificar-cambios`.
+- Agente `Reviewer` de solo lectura, prompt files (`/tests-endpoint`, `/feature-tdd`) y la skill `verificar-cambios`.
 - Hooks (`.github/hooks/`): `guard.cjs` bloquea comandos destructivos y `verify-on-stop.cjs` corre los checks antes de que el agente cierre el turno.
-- Informe con y sin IA: [bloque 8](docs/bloque-8-informe-copilot.md). Workflow documentado: [días 25](docs/dia-25.md) y [26](docs/dia-26.md).
+- Informe con y sin IA: [bloque 8](docs/bloque-8-informe-copilot.md). Workflow documentado con un caso completo: [bloque 9](docs/bloque-9-workflow-ia.md), con el prompt file `/feature-tdd`.
 
 ## Demo técnica
 

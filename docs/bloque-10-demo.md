@@ -1,6 +1,6 @@
 # Bloque 10: guion de la demo técnica
 
-Entregable del bloque 10, junto con el [README](../README.md). Es una demo de 10 minutos del proyecto integrador. Cada comando de este guion se corrió contra `main` el 19/11, y la salida que figura es la real.
+Entregable del bloque 10, junto con el [README](../README.md). Es una demo de 10 minutos del proyecto integrador. Cada comando de este guion se corrió contra `main` (el 19/11, y de nuevo el 24/11 con #28 a #30 mergeados), y la salida que figura es la real.
 
 **Antes de empezar:** dos terminales en la raíz del repo, el navegador abierto y `backend/Upskill.Api/upskill.db` borrado para arrancar con la base vacía.
 
@@ -15,7 +15,7 @@ dotnet run --project backend/Upskill.Api --launch-profile http          # termin
 cd frontend && VITE_TODOS_API=true npm run dev                          # terminal 2
 ```
 
-En `http://localhost:5173`: agregá dos tareas, marcá una y recargá. Siguen ahí porque las guardó la API, no el estado del componente. Para mostrar que la UI no conoce la fuente de datos, señalá en `App.vue` el `Repository<T>`, que puede ser en memoria o HTTP.
+En `http://localhost:5173`: agregá dos tareas, marcá una y recargá. El panel de stats (día 28) muestra los conteos de `/api/todos/stats`; tocá "Actualizar". Siguen ahí porque las guardó la API, no el estado del componente. Para mostrar que la UI no conoce la fuente de datos, señalá en `App.vue` el `Repository<T>`, que puede ser en memoria o HTTP.
 
 ## 3. La API por dentro (3 min)
 
@@ -46,14 +46,15 @@ Qué contar en cada paso:
 scripts/check.sh all
 ```
 
-- **Backend:** 45 casos verdes en unos segundos, con SQLite en memoria para los unit y `WebApplicationFactory` para los de integración, y una base nueva por test.
-- **Frontend:** 50 tests con Vitest. Abrí `dia-06/__tests__/dia-06.spec.ts`, el test "useCrud vuelve atrás un borrado si el server falla": es update optimista con rollback.
+- **Backend:** 48 casos verdes en unos segundos, con SQLite en memoria para los unit y `WebApplicationFactory` para los de integración, y una base nueva por test.
+- **Frontend:** 52 tests con Vitest. Abrí `dia-06/__tests__/dia-06.spec.ts`, el test "useCrud vuelve atrás un borrado si el server falla": es update optimista con rollback.
+- **Smoke y E2E:** `scripts/smoke.sh` recorre el CRUD contra la API real, y `cd e2e && npx playwright test --ui` muestra el E2E paso a paso en el navegador. Es el mejor cierre visual de esta parte.
 - **CI:** en un PR cualquiera, mostrá los checks de GitHub Actions y el resumen de cobertura del backend.
 - **Azure:** abrí `azure-pipelines.yml` y recorré los stages Build → Smoke → DeployDev → DeployProd. Aclarales que está validado contra el schema, pero no se corre desde GitHub.
 
 ## 5. El workflow con IA (2 min)
 
-Mostrá los commits rojo → verde → refactor del día 26 (`git log --oneline` de esa feature) y contá el ciclo:
+Abrí el [bloque 9](bloque-9-workflow-ia.md): el caso `DELETE /api/todos/completed`, con sus commits rojo y verde, y el prompt file `/feature-tdd` que lo ejecuta. Contá el ciclo:
 
 1. Los tests los aprobás vos antes de que haya código.
 2. El agente implementa sin tocar los tests.
@@ -69,14 +70,6 @@ Lo que conviene decir explícitamente: todo el código del repo se puede explica
 | ¿Cómo evitás que el front y el back se desincronicen? | DTOs espejados y OpenAPI expuesto. El siguiente paso sería generar el cliente. | `Todo.cs`, `dia-06/types.ts` |
 | ¿Microfrontends para esto? | No, sería sobreingeniería, y el memo explica cuándo sí. | [bloque-4](bloque-4-memo-microfrontends.md) |
 | ¿Cuánto rindió la IA? | Sin medición propia todavía. El informe cita los estudios y deja el protocolo para medir. | [bloque-8](bloque-8-informe-copilot.md) |
-
-## Si ya están mergeados #28 a #30
-
-Suman tres cosas al guion:
-
-- **Paso 2:** el panel de stats (#29) y el botón para borrar las hechas, que usa `DELETE /api/todos/completed` (#28).
-- **Paso 4:** `scripts/smoke.sh` contra la API levantada (#29), y el E2E con Playwright, `cd e2e && npx playwright test --ui` (#30). Este último es el mejor cierre visual de la demo.
-- **Paso 5:** el caso completo del [bloque 9](bloque-9-workflow-ia.md) (#28) reemplaza al día 26 como ejemplo.
 
 ## Docs oficiales
 
