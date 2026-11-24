@@ -16,6 +16,8 @@ public sealed record TodoDto(int Id, string Title, bool Done);
 
 public sealed record TodoStats(int Total, int Done, int Pending);
 
+public sealed record DeleteDoneResult(int Deleted);
+
 public sealed record CreateTodo(
     [property: Required, StringLength(100, MinimumLength = 1)] string Title,
     bool Done = false);
