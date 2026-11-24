@@ -28,3 +28,4 @@ Un archivo por día del plan (`dia-01.md`, `dia-02.md`, …): snippets cortos y,
 - [Día 25: workflow asistido por IA (repaso), con script de verificación, hooks y skill](dia-25.md)
 - [Día 26: workflow con IA en la práctica (TDD de /api/todos/stats)](dia-26.md)
 - [Día 27: workflow asistido por IA, con un caso completo](bloque-9-workflow-ia.md), el entregable del bloque 9
+- [Día 28: proyecto integrador, integración front ↔ back y smoke test](dia-28.md)
